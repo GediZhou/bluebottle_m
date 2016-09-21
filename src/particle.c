@@ -76,7 +76,7 @@ real **_phinm_im00;
 real **_chinm_re00;
 real **_chinm_im00;
 
-void parts_read_input(int turb)
+void parts_read_input(int turb, int res)
 {
   int i;  // iterator
 
@@ -112,8 +112,13 @@ void parts_read_input(int turb)
     fret = fscanf(infile, "\n");
 #ifdef DOUBLE
     fret = fscanf(infile, "r %lf\n", &parts[i].r);
+
+    if(!res)
     fret = fscanf(infile, "(x, y, z) %lf %lf %lf\n",
       &parts[i].x, &parts[i].y, &parts[i].z);
+    else
+    fret = fscanf(infile, "%*[^\n]\n");
+
     fret = fscanf(infile, "(aFx, aFy, aFz) %lf %lf %lf\n",
       &parts[i].aFx, &parts[i].aFy, &parts[i].aFz);
     fret = fscanf(infile, "(aLx, aLy, aLz) %lf %lf %lf\n",
@@ -125,8 +130,13 @@ void parts_read_input(int turb)
     fret = fscanf(infile, "coeff_fric %lf\n", &parts[i].coeff_fric);
 #else // single precision
     fret = fscanf(infile, "r %f\n", &parts[i].r);
+
+    if(!res)
     fret = fscanf(infile, "(x, y, z) %f %f %f\n",
       &parts[i].x, &parts[i].y, &parts[i].z);
+    else
+    fret = fscanf(infile, "%*[^\n]\n");
+
     fret = fscanf(infile, "(aFx, aFy, aFz) %f %f %f\n",
       &parts[i].aFx, &parts[i].aFy, &parts[i].aFz);
     fret = fscanf(infile, "(aLx, aLy, aLz) %f %f %f\n",

@@ -989,7 +989,7 @@ extern part_struct **_parts;
  *  parts_read_input()
  * USAGE
  */
-void parts_read_input(int turb);
+void parts_read_input(int turb, int res);
 /*
  * FUNCTION
  *  Read particle specfications from part.input.

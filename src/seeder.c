@@ -196,7 +196,12 @@ void seeder_read_input(int Nx, int Ny, int Nz)//, double ddz, double bias,
     seeder(N, loa, a, aFx, aFy, aFz, aLx, aLy, aLz, rho, E, sigma, e_dry,
       coeff_fric, order, rs_r, spring_k, spring_x, spring_y, spring_z, spring_l,
       trans, rot);   
-  } else printf("This function is not availiable.\n");
+  } else
+  {// array case
+    seeder_array(Nx, Ny, Nz, loa, a, aFx, aFy, aFz, aLx, aLy, aLz, rho, E, 
+    sigma, e_dry, order, rs_r, spring_k, spring_x, spring_y, spring_z, 
+    spring_l,trans, rot);      
+  }
   //else if(ddz == 0.0 && bias == 0.0 && nperturb == 0){ // array case
   //  seeder_array(Nx, Ny, Nz, loa, a, aFx, aFy, aFz, aLx, aLy, aLz, rho, E, 
   //  sigma, e_dry, order, rs_r, spring_k, spring_x, spring_y, spring_z, 

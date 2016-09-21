@@ -167,6 +167,8 @@ int rec_particle_omega;
 int rec_particle_force;
 int rec_particle_moment;
 g_struct g;
+real osci_A;
+real osci_w;
 real rho_f;
 real mu;
 real nu;
@@ -253,7 +255,6 @@ int main(int argc, char *argv[]) {
         if(type == 'r'){
           seeder_read_input(Nx, Ny, Nz);//, ddz, bias, nperturb);
         }
-        /*
         if(type == 'a'){
           printf("Please input the number of particles in the x direction\n");
           fflush(stdout);
@@ -265,8 +266,9 @@ int main(int argc, char *argv[]) {
           fflush(stdout);
           fret = scanf("%d",&Nz);
           printf("Nx Ny Nz is: %d %d %d\n",Nx, Ny, Nz);  
-          seeder_read_input(Nx, Ny, Nz, ddz, bias, nperturb);               
+          seeder_read_input(Nx, Ny, Nz);//, ddz, bias, nperturb);               
         }
+        /*
         if(type == 'h'){
           printf("Please input the number of particles in the x direction\n");
           fflush(stdout);
@@ -327,7 +329,7 @@ int main(int argc, char *argv[]) {
       printf("\nRunning Bluebottle...\n\n");
       printf("Reading the domain and particle input files...\n\n");
       domain_read_input();
-      parts_read_input(turb);
+      parts_read_input(turb, 0);
       fflush(stdout);
       //printf("EXPD: Using devices %d through %d.\n\n", dev_start, dev_end);
       //fflush(stdout);
@@ -456,6 +458,10 @@ int main(int argc, char *argv[]) {
         printf("Reading restart file...");
         fflush(stdout);
         in_restart();
+        parts_read_input(turb, runrestart);
+        //this line is added by gedi for the use of restart file
+        //to a different simulation case with the same domain codition
+        //but with different particle information
         printf("done.\n");
         fflush(stdout);
         printf("Copying host domain data to devices...");
@@ -876,7 +882,7 @@ int main(int argc, char *argv[]) {
     // read simulation input configuration file
     recorder_read_config();
     turb_read_input();
-    parts_read_input(turb);
+    parts_read_input(turb, 0);
 
     //printf("PREC: Using devices %d through %d.\n\n", dev_start, dev_end);
     //fflush(stdout);

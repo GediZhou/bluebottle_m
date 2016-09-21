@@ -726,6 +726,14 @@ void domain_read_input(void)
   fret = fscanf(infile, "Kd %f\n", &Kd);
 #endif
 
+  fret = fscanf(infile, "VIBRATION PARAMETER\n");
+#ifdef DOUBLE
+  fret = fscanf(infile, "osci %lf %lf\n", &osci_A, &osci_w);
+#else
+  fret = fscanf(infile, "osci %lf %lf\n", &osci_A, &osci_w);
+#endif
+
+
   fclose(infile);
 }
 

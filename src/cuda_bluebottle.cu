@@ -3753,6 +3753,7 @@ void cuda_compute_forcing(real *pid_int, real *pid_back, real Kp, real Ki,
       if(gradP.xa == 0) gradP.x = gradP.xm;
       else if(fabs(delta*gradP.xa) > fabs(gradP.xm)) gradP.x = gradP.xm;
       else gradP.x = delta*gradP.xa;
+      gradP.x = gradP.x - rho_f * osci_A * cos(osci_w * ttime);
 
       if(gradP.ya == 0) gradP.y = gradP.ym;
       else if(fabs(delta*gradP.ya) > fabs(gradP.ym)) gradP.y = gradP.ym;
@@ -3765,6 +3766,8 @@ void cuda_compute_forcing(real *pid_int, real *pid_back, real Kp, real Ki,
         else gradP.z = delta*gradP.za;
       }
     }
+    printf("A W gradP %lf %lf %lf", osci_A, osci_w, gradP.x);
+    fflush(stdout);
 
     // linearly accelerate gravitational acceleration from zero
     delta = ttime - g_tDelay;
@@ -4345,7 +4348,7 @@ void cuda_move_parts_sub()
         collision_walls<<<numBlocks, dimBlocks>>>(_dom[dev], _parts[dev],
           nparts, bc, eps, mu, rho_f, nu, interactionLengthRatio, dt);
         move_parts_a<<<numBlocks, dimBlocks>>>(_dom[dev], _parts[dev], nparts,
-          dt, dt0, g, gradP, rho_f, ttime);
+          dt, dt0, g, gradP, rho_f, ttime, osci_A, osci_w);
         collision_init<<<numBlocks, dimBlocks>>>(_parts[dev], nparts);
         spring_parts<<<numBlocks, dimBlocks>>>(_parts[dev], nparts);
         collision_walls<<<numBlocks, dimBlocks>>>(_dom[dev], _parts[dev],
@@ -4413,7 +4416,7 @@ void cuda_move_parts_sub()
         collision_walls<<<numBlocks, dimBlocks>>>(_dom[dev], _parts[dev],
           nparts, bc, eps, mu, rho_f, nu, interactionLengthRatio, dt);
         move_parts_a<<<numBlocks, dimBlocks>>>(_dom[dev], _parts[dev], nparts,
-          dt, dt0, g, gradP, rho_f, ttime);
+          dt, dt0, g, gradP, rho_f, ttime, osci_A, osci_w);
 
         collision_init<<<numBlocks, dimBlocks>>>(_parts[dev], nparts);
         
@@ -4463,7 +4466,7 @@ void cuda_move_parts()
         collision_walls<<<numBlocks, dimBlocks>>>(_dom[dev], _parts[dev],
           nparts, bc, eps, mu, rho_f, nu, interactionLengthRatio, dt);
         move_parts_a<<<numBlocks, dimBlocks>>>(_dom[dev], _parts[dev], nparts,
-          dt, dt0, g, gradP, rho_f, ttime);
+          dt, dt0, g, gradP, rho_f, ttime, osci_A, osci_w);
         collision_init<<<numBlocks, dimBlocks>>>(_parts[dev], nparts);
         spring_parts<<<numBlocks, dimBlocks>>>(_parts[dev], nparts);
         collision_walls<<<numBlocks, dimBlocks>>>(_dom[dev], _parts[dev],
@@ -4531,7 +4534,7 @@ void cuda_move_parts()
         collision_walls<<<numBlocks, dimBlocks>>>(_dom[dev], _parts[dev],
           nparts, bc, eps, mu, rho_f, nu, interactionLengthRatio, dt);
         move_parts_a<<<numBlocks, dimBlocks>>>(_dom[dev], _parts[dev], nparts,
-          dt, dt0, g, gradP, rho_f, ttime);
+          dt, dt0, g, gradP, rho_f, ttime, osci_A, osci_w);
 
         collision_init<<<numBlocks, dimBlocks>>>(_parts[dev], nparts);
         
@@ -4552,7 +4555,7 @@ void cuda_move_parts()
       }
 
       move_parts_b<<<numBlocks, dimBlocks>>>(_dom[dev], _parts[dev], nparts,
-        dt, dt0, g, gradP, rho_f, ttime);
+        dt, dt0, g, gradP, rho_f, ttime, osci_A, osci_w);
     }
   }
 }

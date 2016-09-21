@@ -2052,6 +2052,18 @@ extern real nu;
  *  The fluid kinematic viscosity.
  ******
  */
+extern real osci_A;
+/*
+ * PURPOSE
+ * External vibration amplitude
+ * *******
+ */
+extern real osci_w;
+/*
+ * PURPOSE
+ * External vibration angular frequency
+ * *****
+ */
 
 /****s* bluebottle/g_struct
  * NAME

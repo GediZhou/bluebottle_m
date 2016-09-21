@@ -2261,7 +2261,7 @@ __global__ void plane_eps_z_T(real eps, real *w_star, dom_struct *dom)
 }
 
 __global__ void move_parts_a(dom_struct *dom, part_struct *parts, int nparts,
-  real dt, real dt0, g_struct g, gradP_struct gradP, real rho_f, real ttime)
+  real dt, real dt0, g_struct g, gradP_struct gradP, real rho_f, real ttime, real A, real w)
 {
   int pp = threadIdx.x + blockIdx.x*blockDim.x; // particle number
   real vol = 4./3. * PI * parts[pp].r*parts[pp].r*parts[pp].r;
@@ -2272,7 +2272,7 @@ __global__ void move_parts_a(dom_struct *dom, part_struct *parts, int nparts,
       // update linear accelerations
       parts[pp].udot = (parts[pp].Fx + parts[pp].kFx + parts[pp].iFx
         + parts[pp].aFx - vol*gradP.x) / m
-        + (parts[pp].rho - rho_f) / parts[pp].rho * g.x;
+        + (parts[pp].rho - rho_f) / parts[pp].rho * g.x + A * cos(w * ttime);
       parts[pp].vdot = (parts[pp].Fy + parts[pp].kFy + parts[pp].iFy
         + parts[pp].aFy - vol*gradP.y) / m
         + (parts[pp].rho - rho_f) / parts[pp].rho * g.y;
@@ -2284,9 +2284,18 @@ __global__ void move_parts_a(dom_struct *dom, part_struct *parts, int nparts,
       parts[pp].u = parts[pp].u0 + 0.5*dt*(parts[pp].udot + parts[pp].udot0);
       parts[pp].v = parts[pp].v0 + 0.5*dt*(parts[pp].vdot + parts[pp].vdot0);
       parts[pp].w = parts[pp].w0 + 0.5*dt*(parts[pp].wdot + parts[pp].wdot0);
+    //  printf("velocity u %lf\n", parts[pp].u);
 
       // do not update position
     }
+    //Large particle is forced to a prescribed motion, temporary use only
+    //needs to be modifed to accept inputs
+    if(parts[pp].r != 1){
+      parts[pp].u = A * w * cos(w * ttime);
+      parts[pp].v = 0.;
+      parts[pp].w = 0.;
+    }
+
     if(parts[pp].rotating) {
       // update angular accelerations
       real I = 0.4 * m * parts[pp].r*parts[pp].r;
@@ -2303,7 +2312,7 @@ __global__ void move_parts_a(dom_struct *dom, part_struct *parts, int nparts,
 }
 
 __global__ void move_parts_b(dom_struct *dom, part_struct *parts, int nparts,
-  real dt, real dt0, g_struct g, gradP_struct gradP, real rho_f, real ttime)
+  real dt, real dt0, g_struct g, gradP_struct gradP, real rho_f, real ttime, real A, real w)
 {
   int pp = threadIdx.x + blockIdx.x*blockDim.x; // particle number
   real vol = 4./3. * PI * parts[pp].r*parts[pp].r*parts[pp].r;
@@ -2314,7 +2323,7 @@ __global__ void move_parts_b(dom_struct *dom, part_struct *parts, int nparts,
       // update linear accelerations
       parts[pp].udot = (parts[pp].Fx + parts[pp].kFx + parts[pp].iFx
         + parts[pp].aFx - vol*gradP.x) / m
-        + (parts[pp].rho - rho_f) / parts[pp].rho * g.x;
+        + (parts[pp].rho - rho_f) / parts[pp].rho * g.x + A * cos(w * ttime);
       parts[pp].vdot = (parts[pp].Fy + parts[pp].kFy + parts[pp].iFy
         + parts[pp].aFy - vol*gradP.y) / m
         + (parts[pp].rho - rho_f) / parts[pp].rho * g.y;
@@ -2327,7 +2336,14 @@ __global__ void move_parts_b(dom_struct *dom, part_struct *parts, int nparts,
       parts[pp].v = parts[pp].v0 + 0.5*dt*(parts[pp].vdot + parts[pp].vdot0);
       parts[pp].w = parts[pp].w0 + 0.5*dt*(parts[pp].wdot + parts[pp].wdot0);
 
-      // update position (trapezoidal rule)
+      //Large particle is forced to a prescribed motion, temporary use only
+      //needs to be modifed to accept inputs
+     if(parts[pp].r != 1.){
+      parts[pp].u = A * w * cos(w * ttime);
+      parts[pp].v = 0.;
+      parts[pp].w = 0.;
+     }
+          // update position (trapezoidal rule)
       parts[pp].x = parts[pp].x0 + 0.5*dt*(parts[pp].u + parts[pp].u0);
       if(parts[pp].x < dom->xs) parts[pp].x = parts[pp].x + dom->xl;
       else if(parts[pp].x > dom->xe) parts[pp].x = parts[pp].x - dom->xl;
